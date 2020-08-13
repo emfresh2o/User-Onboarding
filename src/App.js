@@ -1,14 +1,21 @@
-import React from 'react';
-import Form from './Form'
+import React, { Component } from 'react';
 import './styles.css';
-import UserForm from './Form';
+import Form from './Form';
+import styled from 'styled-components';
+
+const mainCont = styled.div`
+   background-image: url(https://drive.google.com/file/d/1rdg0VTRdZIsrmIEWwiRuz17LOzq2-ujv/view?usp=sharing);
+   bacgkround-size: cover;
+   background-repeat: no-repeat;
+   height: 750px;
+   `;
 
 function App() {
   return (
-    <div className="App">
-      <h1>User Sign-up</h1>
-      <UserForm />
-    </div>
+    <mainCont className="fantasy">
+        <h1>Fantasia User Sign-up</h1>
+        <Form />
+    </mainCont>
   );
 }
 
