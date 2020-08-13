@@ -55,36 +55,36 @@ export default function Form() {
 //set onSubmit function
 
     const submitForm = (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    axios
-        .post("https://reqres.in/api/users", userForm)
-        .then((response) => {
-            setPost(response.data); //temp API used to display in <pre>
-            setServerError(null); //clearing server error when you get a successful requests
-            //setFormState
-            setUserForm({
-                name: "",
-                email: "",
-                password: "",
-                role: "",
-                terms: true
+        axios
+            .post("https://reqres.in/api/users", userForm)
+            .then((response) => {
+                setPost(response.data); //temp API used to display in <pre>
+                setServerError(null); //clearing server error when you get a successful requests
+                
+                setUserForm({
+                    name: "",
+                    email: "",
+                    password: "",
+                    role: "",
+                    terms: true
+                });
+            })
+            .catch((error) => {
+                setServerError("oops! check info!"); //setting server error when data not found
             });
-        })
-        .catch((error) => {
-            setServerError("oops! check info!"); //setting server error when data not found
-        });
         };
 
 //setting input change
     const inputChange = (e) => {
         e.persist(); // passing the event using persist method to validate event change
-        const newUser = {
+        const newUserData = {
             ...userForm, [e.target.name]: e.target.type === "checkbox" ? e.target.checked : e.target.value };
 };
 //validating change
         validateChange(e); //do inline validation
-        setUserForm(newUser); //updating new user data
+        setUserForm(newUserData); //updating new user data
 
     const userSchema = yup.object().shape({
         name: yup.string().required("field is required"),
@@ -96,10 +96,10 @@ export default function Form() {
 
 useEffect(() => {
     userSchema.isValid(userForm).then((isValid) => {
-        setButtonDisabled(!isValid); //set Button controlling errors when submitted
+        setButtonDisabled(!isValid); //sets Button to control errors when submitted
     });
 },[userForm]);
-}
+
 return (
     <form onSubmit={submitForm}>
         {serverError ? <p className='error'>{serverError}</p> : null}
@@ -169,4 +169,4 @@ return (
       </button>
     </form>
 );
-
+}
