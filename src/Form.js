@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import axios from 'axios';
 
-export default function Form() {
-
+export default function Form () {
 //state form inputs
     const [userForm, setUserForm] = useState({
         name: "",
@@ -12,6 +11,8 @@ export default function Form() {
         role: "",
         terms: true
     });
+
+    const [post, setPost] = useState([]);
 
 // set server error
     const [serverError, setServerError] = useState("");
@@ -28,26 +29,24 @@ export default function Form() {
         terms: ""
     });
 
-// temporary API posting state
-    const [post, setPost] = useState([]);
-
+    
 // set validation for key value pair
     const validateChange = (e) => {
 
         yup
-            .reach(userSchema, e.target.name)
+            .reach(schema, e.target.name)
             .validate(e.target.name === 'terms' ? e.target.checked : e.target.value)
             .then((valid) => {
                 setErrors({
                     ...errors,
-                    [e.target.name]: ""
+                    [e.target.name]: "" // when all errors are all cleared input will be all valid
                 });
             })
             .catch((error) => {
                 console.log(error);
                 setErrors({
                     ...errors,
-                    [e.target.name]: error.errors[0] 
+                    [e.target.name]: error.errors[0] // takes the 0 index value in the array
                 });
             });
         };
@@ -56,13 +55,10 @@ export default function Form() {
 
     const submitForm = (e) => {
         e.preventDefault();
-
         axios
             .post("https://reqres.in/api/users", userForm)
             .then((response) => {
-                setPost(response.data); //temp API used to display in <pre>
-                setServerError(null); //clearing server error when you get a successful requests
-                
+                setPost(response.data); 
                 setUserForm({
                     name: "",
                     email: "",
@@ -76,30 +72,31 @@ export default function Form() {
             });
         };
 
-//setting input change
+//set handling change
     const inputChange = (e) => {
-        e.persist(); // passing the event using persist method to validate event change
+        e.persist(); // persisting the evt obj not to be deleted until all obj has been used and validated and cleared
         const newUserData = {
             ...userForm, [e.target.name]: e.target.type === "checkbox" ? e.target.checked : e.target.value };
-};
-//validating change
+
         validateChange(e); //do inline validation
         setUserForm(newUserData); //updating new user data
 
-    const userSchema = yup.object().shape({
-        name: yup.string().required("field is required"),
-        email: yup.string().email("valid email required").required("must include email"),
-        password: yup.string().min(8, "Must be 8 characters of symbols and letters!").max(10, "Maximum 10 characters no space!").required("Create unique password."),
-        role: yup.string().oneOf(["Maleficent", "Fairy", "Princess", "Thistlewit", "Knotgrass"], "Select your role"),
-        terms: yup.boolean().oneOf([true], "Please agree to T&Cs")
-    });
+}
+// set schema 
+const schema = yup.object().shape({
+    name: yup.string().required("field is required"),
+    email: yup.string().email("valid email required").required("must include email"),
+    password: yup.string().min(8, "Must be 8 characters!").max(10).required("Create a unique password."),
+    role: yup.string().oneOf(["Maleficent", "Fairy", "Princess", "Thistlewit", "Knotgrass"], "Select your role"),
+    terms: yup.boolean().oneOf([true], "Please agree to T&Cs")
+});
 
 useEffect(() => {
-    userSchema.isValid(userForm).then((isValid) => {
+    schema.isValid(userForm).then((isValid) => {
         setButtonDisabled(!isValid); //sets Button to control errors when submitted
     });
 },[userForm]);
-
+    
 return (
     <form onSubmit={submitForm}>
         {serverError ? <p className='error'>{serverError}</p> : null}
@@ -142,8 +139,7 @@ return (
                 id="role"
                 name="role"
                 value={userForm.role}
-                onCHange={inputChange}
-            >
+                onChange={inputChange}>
                 <option> -- Who are you? -- </option>
                 <option value="Maleficent">Maleficent</option>
                 <option value="Fairy">Fairy</option>
@@ -167,6 +163,6 @@ return (
         <button disabled={buttonDisabled} type="submit">
         Submit
       </button>
+      <pre>{JSON.stringify(post, null, 2)}</pre>
     </form>
-);
-}
+    )};
