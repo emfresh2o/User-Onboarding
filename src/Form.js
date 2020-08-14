@@ -12,6 +12,7 @@ export default function Form () {
         terms: true
     });
 
+// temporary post state
     const [post, setPost] = useState([]);
 
 // set server error
@@ -59,6 +60,7 @@ export default function Form () {
             .post("https://reqres.in/api/users", userForm)
             .then((response) => {
                 setPost(response.data); 
+                setServerError(null); // when validation throws an error on server side
                 setUserForm({
                     name: "",
                     email: "",
@@ -68,7 +70,7 @@ export default function Form () {
                 });
             })
             .catch((error) => {
-                setServerError("oops! check info!"); //setting server error when data not found
+                console.log(error)
             });
         };
 
@@ -95,7 +97,8 @@ useEffect(() => {
     schema.isValid(userForm).then((isValid) => {
         setButtonDisabled(!isValid); //sets Button to control errors when submitted
     });
-},[userForm]);
+
+}, [userForm]);
     
 return (
     <form onSubmit={submitForm}>
@@ -107,7 +110,7 @@ return (
                 type="text"
                 name="name"
                 value={userForm.name}
-                onCHange={inputChange}
+                onChange={inputChange}
             />
             {errors.name.length > 0 ? <p className='error'>{errors.name}</p> : null}
         </label>
@@ -129,7 +132,7 @@ return (
                 type="text"
                 name="password"
                 value={userForm.password}
-                onCHange={inputChange}
+                onChange={inputChange}
             />
             {errors.password.length > 0 ? <p className='error'>{errors.password}</p> : null}
         </label>
